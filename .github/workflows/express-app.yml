@@ -1,0 +1,36 @@
+---
+name: Basic Express App Test CI/CD pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+        - 'express-app/**'
+        - '.github/workflows/express-app.yml'
+
+defaults:
+    run:
+        working-directory: express-app
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Login to Docker Hub
+              uses: docker/login-action@v1
+              with:
+                username: ${{ secrets.DOCKER_USERNAME }}
+                password: ${{ secrets.DOCKER_PASSWORD }}
+              
+            - name: Build and Push Docker Image
+              uses: docker/build-push-action@v2
+              with:
+                context: .
+                file: ./express-app/Dockerfile
+                push: true
+                tags: ${{ secrets.DOCKER_USERNAME }}/express-app:latest
+                
